@@ -1,0 +1,22 @@
+.DS_Store
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+.cache/
+
+# Local data and generated artifacts
+data/
+checkpoints/*.pt
+checkpoints/*.pth
+checkpoints/*.ckpt
+artifacts/
+submissions/*.csv
+submissions/*.metadata.json
+submissions/*.npy
+
+# Keep placeholder docs in otherwise generated folders
+!submissions/.gitkeep
+!submissions/SamarthRameshVirakChumKaggleSubmission_1036.csv
+!checkpoints/.gitkeep

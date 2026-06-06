@@ -1,0 +1,13 @@
+[build-system]
+requires = ["setuptools>=69", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "cse144-final-project"
+version = "0.1.0"
+description = "Transfer-learning pipeline for the UCSC CSE144 final Kaggle project."
+requires-python = ">=3.10"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+

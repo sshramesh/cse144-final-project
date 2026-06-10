@@ -9,6 +9,12 @@ Local 4-fold CV accuracy: 0.8767 +/- 0.0151
 Kaggle public score:     85.454
 ```
 
+## Leaderboard Evidence
+
+The public leaderboard entry for the submitted run is shown below.
+
+![Kaggle leaderboard screenshot](assets/kaggle_leaderboard.png)
+
 The goal of this repository is not to document every exploratory attempt, but to make the final accepted result reproducible from the source code, the Kaggle data, and the included configuration.
 
 ## What Is Included

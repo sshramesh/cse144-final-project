@@ -12,6 +12,7 @@ checkpoints/*.pt
 checkpoints/*.pth
 checkpoints/*.ckpt
 artifacts/
+report/
 submissions/*.csv
 submissions/*.metadata.json
 submissions/*.npy

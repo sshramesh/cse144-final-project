@@ -31,7 +31,6 @@ The submitted model reached `85.454` public leaderboard accuracy. The correspond
 │   └── utils.py
 ├── submissions/
 │   └── SamarthRameshVirakChumKaggleSubmission_1036.csv
-├── report/
 ├── assets/
 └── weights/
 ```
@@ -210,7 +209,6 @@ requirements.txt
 pyproject.toml
 scripts/
 src/
-report/
 assets/README.md
 weights/README.md
 submissions/SamarthRameshVirakChumKaggleSubmission_1036.csv

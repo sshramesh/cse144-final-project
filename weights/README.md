@@ -1,21 +1,16 @@
 # Model Artifact
 
-The final submitted model does **not** use a fine-tuned PyTorch checkpoint from `checkpoints/`.
+This folder documents the model artifact for reproducing the submitted result.
 
-Our Kaggle submission was produced with a pretrained-embedding pipeline:
+The final Kaggle submission was generated with a pretrained-embedding pipeline, not a fine-tuned PyTorch checkpoint. The image encoders are public pretrained `timm` models, and the trained part of the submitted pipeline is a logistic-regression classifier on top of frozen embeddings.
 
-1. Download public pretrained image encoders through `timm`.
-2. Extract frozen image embeddings from ConvNeXt, Swin, and DINOv2.
-3. Combine the embeddings with fixed feature-block weights.
-4. Use a trained logistic-regression classifier on top of those embeddings.
-
-Because of that, the file to upload to Google Drive is:
+The artifact prepared for external storage is:
 
 ```text
 weights/final_embedding_model_artifact.zip
 ```
 
-That zip contains:
+It contains:
 
 ```text
 final_logistic_regression.joblib
@@ -24,12 +19,10 @@ SamarthRameshVirakChumKaggleSubmission_1036.csv
 README.md
 ```
 
-The pretrained backbone weights are not included in the zip because they are public `timm` pretrained weights and are downloaded automatically by the reproduction script.
-
-After uploading `weights/final_embedding_model_artifact.zip` to Google Drive, set sharing to **Anyone with the link** and paste the link here:
+The zip is intended to be uploaded to Google Drive or another external file host. After upload, place the share link below:
 
 ```text
-Google Drive model artifact: TODO
+Model artifact link: TODO
 ```
 
-The `checkpoints/` folder is only used by the optional fine-tuning script. It is expected to be empty for the final submitted embedding model.
+The `checkpoints/` folder is only used by the optional fine-tuning script. It is normal for `checkpoints/` to be empty when reproducing the submitted embedding-based result.

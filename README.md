@@ -1,18 +1,17 @@
 # CSE144 Image Classification
 
-A reproducible transfer-learning pipeline for a 100-class image classification challenge from UCSC CSE144. The project uses pretrained computer vision backbones from `timm`, extracts normalized embeddings, and trains a lightweight classifier on top of those embeddings to produce Kaggle-ready predictions.
+This repository contains the code and artifacts needed to reproduce our submitted result for the UCSC CSE144 transfer-learning image classification challenge. The task is to predict one of 100 numeric labels for each test image.
 
-The submitted model reached `85.454` public leaderboard accuracy. The corresponding local 4-fold cross-validation estimate was `0.8767 +/- 0.0151`.
+The submitted pipeline reached:
 
-## Highlights
+```text
+Local 4-fold CV accuracy: 0.8767 +/- 0.0151
+Kaggle public score:     85.454
+```
 
-- Uses strong pretrained visual encoders instead of training a large model from scratch.
-- Preserves the required numeric label mapping from `train/0` through `train/99`.
-- Generates the full 1036-row Kaggle submission expected by the competition.
-- Caches extracted features for faster repeated runs.
-- Includes the submitted CSV for reference and a script to regenerate it.
+The goal of this repository is not to document every exploratory attempt, but to make the final accepted result reproducible from the source code, the Kaggle data, and the included configuration.
 
-## Repository Layout
+## What Is Included
 
 ```text
 .
@@ -35,9 +34,11 @@ The submitted model reached `85.454` public leaderboard accuracy. The correspond
 └── weights/
 ```
 
-## Dataset
+The included final CSV is the submitted prediction file. Generated feature caches, downloaded pretrained weights, local data, virtual environments, checkpoints, and intermediate submissions are intentionally excluded from git.
 
-The Kaggle data is not committed to this repository. Download it separately and keep it in a local folder with this structure:
+## Required Data
+
+Download the Kaggle competition data separately. The code expects a folder with this structure:
 
 ```text
 ucsc-cse-144-spring-2026-final-project/
@@ -53,17 +54,13 @@ ucsc-cse-144-spring-2026-final-project/
 └── sample_submission.csv
 ```
 
-The scripts accept the dataset path as their first argument. During development, the dataset was stored at:
+The training folders are the class labels. The code parses folder names numerically, so `train/0` maps to label `0`, `train/37` maps to label `37`, and so on.
 
-```text
-/Users/samarthramesh/Downloads/ucsc-cse-144-spring-2026-final-project
-```
+One detail that matters for reproducing the submitted result: although the sample submission listed 1000 rows, Kaggle expected 1036 rows for this competition instance. The reproduction script uses every image in `test/`, sorted by numeric filename stem, and writes a 1036-row submission.
 
-One important competition detail: the provided `sample_submission.csv` may contain only 1000 rows, but Kaggle expects predictions for all 1036 images in `test/`. The reproduction script uses `--all-test` to sort every test image numerically and write all 1036 predictions.
+## Environment Setup
 
-## Installation
-
-Create and activate a clean Python environment:
+From the repository root:
 
 ```bash
 python3 -m venv .venv
@@ -73,34 +70,32 @@ pip install -r requirements.txt
 pip install -e .
 ```
 
-All commands below assume the virtual environment is active. If you open a new terminal, run this again from the repository root:
+All commands below assume the virtual environment is active.
 
-```bash
-source .venv/bin/activate
-```
+## Reproduce the Submitted Kaggle File
 
-## Reproduce the Submitted Result
-
-Run the exact pipeline used for the submitted CSV:
+Run:
 
 ```bash
 ./scripts/run_best_85_submission.sh /path/to/ucsc-cse-144-spring-2026-final-project
 ```
 
-If your data is at the development default path, the argument can be omitted:
+For example, if the data is stored in the same path used during development:
 
 ```bash
-./scripts/run_best_85_submission.sh
+./scripts/run_best_85_submission.sh /Users/samarthramesh/Downloads/ucsc-cse-144-spring-2026-final-project
 ```
 
-The command writes:
+This regenerates:
 
 ```text
 submissions/SamarthRameshVirakChumKaggleSubmission_1036.csv
 submissions/SamarthRameshVirakChumKaggleSubmission_1036.metadata.json
 ```
 
-Check the generated submission format:
+The first run downloads public pretrained `timm` weights and extracts embeddings from three image encoders, so it can take some time. Repeated runs are faster because embeddings are cached under `artifacts/features/`.
+
+Validate the output format:
 
 ```bash
 python - <<'PY'
@@ -122,11 +117,9 @@ Expected output:
 0 99 100
 ```
 
-The first run downloads pretrained weights and extracts image embeddings, so it can take a while depending on hardware and internet speed. Feature arrays are cached in `artifacts/features/`, which is intentionally ignored by git.
+## Final Model Configuration
 
-## Model
-
-The submitted model is an embedding ensemble followed by balanced logistic regression:
+The submitted result uses frozen pretrained embeddings plus a lightweight classifier:
 
 | Component | Value |
 | --- | --- |
@@ -140,7 +133,7 @@ The submitted model is an embedding ensemble followed by balanced logistic regre
 | Local CV accuracy | `0.8767 +/- 0.0151` |
 | Kaggle public score | `85.454` |
 
-The full command is captured in `scripts/run_best_85_submission.sh`:
+The exact command is stored in `scripts/run_best_85_submission.sh`:
 
 ```bash
 python -m cse144_project.make_embedding_submission \
@@ -162,9 +155,21 @@ python -m cse144_project.make_embedding_submission \
   --output submissions/SamarthRameshVirakChumKaggleSubmission_1036.csv
 ```
 
-## Alternative Runs
+## Model Artifact
 
-For a faster smoke test, run a single-backbone version:
+The final submitted pipeline does not depend on a fine-tuned `.pt` checkpoint. The trainable part of the final model is the logistic-regression classifier on top of frozen pretrained embeddings.
+
+The model artifact prepared for external storage is:
+
+```text
+weights/final_embedding_model_artifact.zip
+```
+
+It contains the fitted logistic-regression classifier, the exact model configuration, and the final submitted CSV. The large image encoder weights are public pretrained `timm` weights downloaded automatically by the reproduction script.
+
+## Optional Checks and Alternate Runs
+
+A quick one-backbone smoke test can be run with:
 
 ```bash
 python -m cse144_project.make_embedding_submission \
@@ -173,54 +178,34 @@ python -m cse144_project.make_embedding_submission \
   --output submissions/submission_embedding_quick.csv
 ```
 
-The repository also includes an optional fine-tuning workflow:
+The repository also includes a fine-tuning script:
 
 ```bash
 ./scripts/run_finetune.sh /path/to/ucsc-cse-144-spring-2026-final-project
 ```
 
-This saves checkpoints under `checkpoints/` and can be used with:
-
-```bash
-python -m cse144_project.predict_finetuned \
-  --data-dir /path/to/ucsc-cse-144-spring-2026-final-project \
-  --checkpoint checkpoints/convnext_base_best_fulltrain.pt \
-  --output submissions/submission_finetuned.csv
-```
-
-The fine-tuning path is included for completeness; the submitted result above uses the embedding ensemble.
+That script writes PyTorch checkpoints under `checkpoints/`. It is included for completeness, but it is not the path used for the submitted `85.454` result.
 
 ## Reproducibility Notes
 
-- The label mapping is numeric, not alphabetical. Folder `37` maps to label `37`.
-- Test images are sorted by numeric filename stem before prediction.
-- Pretrained weights are downloaded through `timm` and are not stored in git.
-- Generated caches, checkpoints, and intermediate submissions are ignored by git.
-- The final submitted CSV is tracked at `submissions/SamarthRameshVirakChumKaggleSubmission_1036.csv`.
-- Small floating-point differences may occur across CPU, CUDA, and Apple MPS, but the validation score and submission format should remain stable.
+- Labels are read directly from numeric folder names.
+- Test IDs are produced from all files in `test/`, sorted numerically.
+- The random seed is fixed to `144`.
+- Pretrained encoders are downloaded through `timm`.
+- Feature caches are generated locally and ignored by git.
+- The final submitted CSV is tracked in `submissions/`.
+- Minor floating-point differences may occur across CPU, CUDA, and Apple MPS, but the output format and validation behavior should remain consistent.
 
-## Git Hygiene
+## Ignored Generated Files
 
-Included in the repository:
-
-```text
-README.md
-requirements.txt
-pyproject.toml
-scripts/
-src/
-assets/README.md
-weights/README.md
-submissions/SamarthRameshVirakChumKaggleSubmission_1036.csv
-```
-
-Ignored locally:
+The following are intentionally not tracked:
 
 ```text
 .venv/
 .cache/
 artifacts/
 data/
+report/
 checkpoints/*.pt
 checkpoints/*.pth
 submissions/*.metadata.json

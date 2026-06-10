@@ -19,10 +19,6 @@ SamarthRameshVirakChumKaggleSubmission_1036.csv
 README.md
 ```
 
-The zip is intended to be uploaded to Google Drive or another external file host. After upload, place the share link below:
-
-```text
-Model artifact link: TODO
-```
+The zip is intended to be uploaded to Google Drive or another external file host.
 
 The `checkpoints/` folder is only used by the optional fine-tuning script. It is normal for `checkpoints/` to be empty when reproducing the submitted embedding-based result.
